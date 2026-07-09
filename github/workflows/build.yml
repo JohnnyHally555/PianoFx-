@@ -1,0 +1,39 @@
+name: Compilar PianoFx
+
+# Define quando o robô vai trabalhar
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: # Cria um botão "Run workflow" para você disparar manualmente
+
+jobs:
+  build-app:
+    # O servidor que o GitHub vai emprestar para você (um Linux completo)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📂 Clonar os arquivos do repositório
+        uses: actions/checkout@v4
+
+      - name: ☕ Configurar ambiente Java (Necessário para o Android NDK)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 🎵 Instalar a linguagem Faust no servidor
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y faust
+
+      - name: ⚙️ Compilar o Aplicativo (A Mágica Acontece Aqui)
+        run: |
+          # O comando padrão para gerar o APK do aplicativo no servidor
+          faust2android -osc pianofx.dsp
+          
+      - name: 📦 Guardar o instalador final para Download
+        uses: actions/upload-artifact@v4
+        with:
+          name: PianoFx-Instalador
+          path: ./*.apk
+          
